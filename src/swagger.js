@@ -9,12 +9,12 @@ const options = {
       description:
         "A REST API for managing projects, tasks, and tags with JWT authentication.",
     },
-    servers: [
-      {
-        url: process.env.API_URL || "http://localhost:3000",
-        description: "API Server",
-      },
-    ],
+   servers: [
+  {
+    url: "https://task-api-04ue.onrender.com",
+    description: "Render API Server",
+  },
+],
     components: {
       securitySchemes: {
         bearerAuth: {
