@@ -1,0 +1,89 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  password  String
+  name      String
+  role      Role      @default(USER)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  projects  Project[]
+}
+
+model Project {
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String?
+  status      ProjectStatus @default(ACTIVE)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  ownerId     Int
+  owner       User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  tasks       Task[]
+}
+
+model Task {
+  id          Int        @id @default(autoincrement())
+  title       String
+  description String?
+  status      TaskStatus @default(TODO)
+  priority    Priority   @default(MEDIUM)
+  dueDate     DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  projectId   Int
+  project     Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tags        TaskTag[]
+}
+
+model Tag {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  color     String    @default("#6366f1")
+  createdAt DateTime  @default(now())
+  tasks     TaskTag[]
+}
+
+// Junction table - does NOT count as a main resource
+model TaskTag {
+  taskId    Int
+  tagId     Int
+  task      Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  tag       Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([taskId, tagId])
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum ProjectStatus {
+  ACTIVE
+  COMPLETED
+  ARCHIVED
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+}
